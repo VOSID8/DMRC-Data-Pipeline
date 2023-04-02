@@ -1,4 +1,10 @@
-[0m[[0m[33mwarn[0m] [0m[0mthere was one deprecation warning[0m
-[0m[[0m[33mwarn[0m] [0m[0mthere was one deprecation warning (since 2.12.0)[0m
-[0m[[0m[33mwarn[0m] [0m[0mthere were two deprecation warnings in total; re-run with -deprecation for details[0m
-[0m[[0m[33mwarn[0m] [0m[0mthree warnings found[0m
+[0m[[0m[31merror[0m] [0m[0mC:\Projects\DMRC DP\src\main\scala\guru\learningjournal\spark\examples\dmrc.scala:98:37: not found: value sc[0m
+[0m[[0m[31merror[0m] [0m[0m    val sqlContext = new SQLContext(sc)[0m
+[0m[[0m[31merror[0m] [0m[0m                                    ^[0m
+[0m[[0m[31merror[0m] [0m[0mC:\Projects\DMRC DP\src\main\scala\guru\learningjournal\spark\examples\dmrc.scala:117:21: not found: value sc[0m
+[0m[[0m[31merror[0m] [0m[0m    val updateRdd = sc.parallelize(Seq(Row("John",    "Smith", 1L),[0m
+[0m[[0m[31merror[0m] [0m[0m                    ^[0m
+[0m[[0m[31merror[0m] [0m[0mC:\Projects\DMRC DP\src\main\scala\guru\learningjournal\spark\examples\dmrc.scala:135:5: not found: value sc[0m
+[0m[[0m[31merror[0m] [0m[0m    sc.stop()[0m
+[0m[[0m[31merror[0m] [0m[0m    ^[0m
+[0m[[0m[31merror[0m] [0m[0mthree errors found[0m

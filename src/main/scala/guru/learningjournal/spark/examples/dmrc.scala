@@ -15,6 +15,12 @@ import org.apache.spark.sql.cassandra._
 import java.util
 import java.util.Properties
 
+import org.apache.spark._
+import org.apache.spark.sql._
+import org.apache.spark.sql.types._
+import com.datastax.spark.connector._
+import com.datastax.spark.connector.cql.CassandraConnector
+
 object dmrc extends Serializable {
   @transient lazy val logger: Logger = Logger.getLogger(getClass.getName)
 
@@ -51,7 +57,7 @@ object dmrc extends Serializable {
     properties.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer")
 
     val kafkaConsumer = new KafkaConsumer[String, String](properties)
-    kafkaConsumer.subscribe(util.Collections.singleton("dmrc"))
+    kafkaConsumer.subscribe(Collections.singleton("dmrc"))
 
     while (true) {
       println("Reading kafka msgs")
@@ -78,14 +84,56 @@ object dmrc extends Serializable {
     println(joinedDF.toString)
     val outputDF = joinedDF.select(col("profile_id"), col("age"),col("remaining"), col("user_name"))
     println("Checkpoint 1")
-    println("outputDF: "+outputDF)
     
-    // outputDF.write
-    //   .format("org.apache.spark.sql.cassandra")
-    //   .option("keyspace", "spark_db")
-    //   .option("table", "users")
-    //   .mode("append")
-    //   .save();
+    // val SparkMasterHost = "local[*]"
+    // val CassandraHost = "127.0.0.1"
+
+    // val conf = new SparkConf(true)
+    //     .setAppName(getClass.getSimpleName)
+    //     .setMaster(SparkMasterHost)
+    //     .set("spark.cassandra.connection.host", CassandraHost)
+    //     .set("spark.cleaner.ttl", "3600")
+
+    // val sc = new SparkContext(conf)
+    // val sqlContext = new SQLContext(sc)
+
+    // println("\nCreate keyspace 'test', table 'name_counter' and insert entries:")
+
+    // CassandraConnector(conf).withSessionDo { session =>
+    //   session.execute("CREATE KEYSPACE IF NOT EXISTS test WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor': 1 }")
+    //   session.execute("CREATE TABLE IF NOT EXISTS test.name_counter (name TEXT, surname TEXT, count COUNTER, PRIMARY KEY(name, surname))")
+    //   session.execute("TRUNCATE test.name_counter")
+    //   session.execute("UPDATE test.name_counter SET count=count+100  WHERE name='John'    AND surname='Smith' ")
+    //   session.execute("UPDATE test.name_counter SET count=count+1000 WHERE name='Zhang'   AND surname='Wei'   ")
+    //   session.execute("UPDATE test.name_counter SET count=count+10   WHERE name='Angelos' AND surname='Papas' ")
+    // }
+    // val nc = sqlContext.read.format("org.apache.spark.sql.cassandra")
+    //                 .options(Map("keyspace" -> "test", "table" -> "name_counter"))
+    //                 .load()
+    // nc.show()
+
+    // println("\nUpdate table with more counts:")
+
+    // val updateRdd = sc.parallelize(Seq(Row("John",    "Smith", 1L),
+    //                                    Row("Zhang",   "Wei",   2L),
+    //                                    Row("Angelos", "Papas", 3L)))
+    // val tblStruct = new StructType(
+    //     Array(StructField("name",    StringType, nullable = false),
+    //           StructField("surname", StringType, nullable = false),
+    //           StructField("count",   LongType,   nullable = false)))
+    // val updateDf  = sqlContext.createDataFrame(updateRdd, tblStruct)
+
+
+    // updateDf.write.format("org.apache.spark.sql.cassandra")
+    //     .options(Map("keyspace" -> "test", "table" -> "name_counter"))
+    //     .mode("append")
+    //     .save()
+
+
+    // nc.show()
+    // println("Checkpoint 3")
+    // sc.stop()
+    
     val outputQuery = outputDF.writeStream.format("org.apache.spark.sql.cassandra")
             .outputMode("append")
             .option("checkpointLocation", "chk-point-dir")
@@ -94,7 +142,6 @@ object dmrc extends Serializable {
             .trigger(Trigger.ProcessingTime("1 minute"))
             .start()
 
-    println("Checkpoint 2")
 
     logger.info("Waiting for Query")
     outputQuery.awaitTermination()
