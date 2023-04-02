@@ -1,0 +1,1 @@
+C:\kafka\bin\windows\kafka-console-producer.bat --topic quickstart-events --bootstrap-server localhost:9092
